@@ -4,6 +4,7 @@
 #include <pthread.h>
 #include <errno.h>
 
+// 스레드 우선순위 변경 연습
 // 메인 스레드 외에 새로운 스레드를 CPU 개수만큼 생성하고 우선순위를 변경하는 응용 프로그램
 void *MyThread(void *arg)
 {
