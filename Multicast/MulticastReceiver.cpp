@@ -1,5 +1,6 @@
 #include "../Common.h"
 
+#define MULTICASTIP	"235.7.8.9"
 #define LOCALPORT	9000
 #define BUFSIZE		512
 
@@ -11,7 +12,14 @@ int	main(int argc, char *argv[])
 	SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock == INVALID_SOCKET)
 		err_quit("socket()");
-	
+
+	/******************/
+	// SO_REUSEADDR 옵션 설정
+	int	optval = 1;
+	retval = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
+	if (retval == SOCKET_ERROR)
+		err_quit("setsockopt()");
+	/******************/
 	// bind()
 	struct sockaddr_in	localaddr;
 	memset(&localaddr, 0, sizeof(localaddr));
@@ -22,6 +30,17 @@ int	main(int argc, char *argv[])
 	if (retval == SOCKET_ERROR)
 		err_quit("bind()");
 	
+
+	/******************/
+	// 멀티캐스트 그룹 가입
+	struct ip_mreq mreq;
+	inet_pton(AF_INET, MULTICASTIP, &mreq.imr_multiaddr);
+	mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+	retval = setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char *)&mreq, sizeof(mreq));
+	if (retval == SOCKET_ERROR)
+		err_quit("setsockopt()");
+	/******************/
+
 	// 데이터 통신에 사용할 변수
 	struct sockaddr_in	peeraddr;
 	socklen_t	addrlen;
@@ -45,6 +64,13 @@ int	main(int argc, char *argv[])
 		printf("[UDP/%s:%d] %s\n", addr, ntohs(peeraddr.sin_port), buf);
 
 	}
+	/******************/
+	// 멀티캐스트 그룹 탈퇴
+	retval = setsockopt(sock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (const char *)&mreq, sizeof(mreq));
+	if (retval == SOCKET_ERROR)
+		err_quit("setsockopt()");
+	/******************/
+
 	close(sock);
 	return 0;
 }

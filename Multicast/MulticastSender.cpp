@@ -1,6 +1,6 @@
 #include "../Common.h"
 
-#define	REMOTEIP	"255.255.255.255"
+#define	MULTICASTIP	"255.255.255.255"
 #define REMOTEPORT	9000
 #define BUFSIZE 	512
 
@@ -12,25 +12,27 @@ int	main(int argc, char *argv[])
 	SOCKET sock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (sock == INVALID_SOCKET)
 		err_quit("socket()");
-	
-	// 브로드캐스팅 활성화
-	int bEnable = 1;
-	retval = setsockopt(sock, SOL_SOCKET, SO_BROADCAST, &bEnable, sizeof(bEnable));
+
+	/******************/
+	// 멀티캐스트 TTL 설정
+	int	ttl = 2;
+	retval = setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, (const char *)&ttl, sizeof(ttl));
 	if (retval == SOCKET_ERROR)
 		err_quit("setsockopt()");
+	/******************/
 
 	// 소켓 주소 구조체 초기화
 	struct sockaddr_in remoteaddr;
 	memset(&remoteaddr, 0, sizeof(remoteaddr));
 	remoteaddr.sin_family = AF_INET;
-	inet_pton(AF_INET, REMOTEIP, &remoteaddr.sin_addr);
+	inet_pton(AF_INET, MULTICASTIP, &remoteaddr.sin_addr);
 	remoteaddr.sin_port = htons(REMOTEPORT);
 
 	// 데이터 통신에 사용할 변수
 	char	buf[BUFSIZE + 1];
 	int	len;
 
-	// 브로드캐스트 데이터 보내기
+	// 멀티캐스트 데이터 보내기
 	while (1)
 	{
 		// 데이터 입력
