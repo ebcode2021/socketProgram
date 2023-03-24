@@ -14,9 +14,9 @@ int	main(int argc, char *argv[])
 		err_quit("socket()");
 
 	/******************/
-	// SO_REUSEADDR 옵션 설정
+	// SO_REUSEPORT 옵션 설정
 	int	optval = 1;
-	retval = setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
+	retval = setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, (const char*)&optval, sizeof(optval));
 	if (retval == SOCKET_ERROR)
 		err_quit("setsockopt()");
 	/******************/
@@ -46,7 +46,7 @@ int	main(int argc, char *argv[])
 	socklen_t	addrlen;
 	char buf[BUFSIZE + 1];
 
-	// 브로드캐스트 데이터 받기
+	// 멀티캐스트 데이터 받기
 	while (1)
 	{
 		// 데이터 받기

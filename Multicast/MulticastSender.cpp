@@ -1,6 +1,6 @@
 #include "../Common.h"
 
-#define	MULTICASTIP	"255.255.255.255"
+#define	MULTICASTIP	"235.7.8.9"
 #define REMOTEPORT	9000
 #define BUFSIZE 	512
 
